@@ -1,18 +1,23 @@
 export class Money {
-  constructor(protected amount: number) {}
+  constructor(protected amount: number, protected _currency: string) {}
 
-  static dollar(amount: number): Dollar {
-    return new Dollar(amount);
+  static dollar(amount: number): Money {
+    return new Money(amount, 'USD');
   }
 
-  static franc(amount: number): Franc {
-    return new Franc(amount);
+  static franc(amount: number): Money {
+    return new Money(amount, 'CHF');
+  }
+
+  get currency() {
+    return this._currency;
+  }
+
+  times(multiplier: number): Money {
+    return new Money(this.amount * multiplier, this.currency);
   }
 
   equals(other: any): boolean {
-    return this.constructor.name === other.constructor.name && this.amount === other.amount;
+    return this.currency === other.currency && this.amount === other.amount;
   }
 }
-
-import { Dollar } from './dollar';
-import { Franc } from './franc';
