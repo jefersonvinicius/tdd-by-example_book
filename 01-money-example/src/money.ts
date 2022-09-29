@@ -1,5 +1,8 @@
-export class Money {
-  constructor(protected amount: number, protected _currency: string) {}
+import { Expression } from './expression';
+import { Sum } from './sum';
+
+export class Money implements Expression {
+  constructor(readonly amount: number, protected _currency: string) {}
 
   static dollar(amount: number): Money {
     return new Money(amount, 'USD');
@@ -11,6 +14,10 @@ export class Money {
 
   get currency() {
     return this._currency;
+  }
+
+  plus(addend: Money): Expression {
+    return new Sum(this, addend);
   }
 
   times(multiplier: number): Money {

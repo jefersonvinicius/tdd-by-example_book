@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Money } from '@app/money';
+import { Bank } from '@app/bank';
+import { Sum } from '@app/sum';
 
 describe('Dollar suite test', () => {
   it('dollar multiplication', () => {
@@ -12,6 +14,29 @@ describe('Dollar suite test', () => {
     const five = Money.franc(5);
     expect(five.times(2).equals(Money.franc(10))).toBe(true);
     expect(five.times(3).equals(Money.franc(15))).toBe(true);
+  });
+
+  it('simple addition', () => {
+    const five = Money.dollar(5);
+    const sum = five.plus(five);
+    const bank = new Bank();
+    const reduced = bank.reduce(sum, 'USD');
+    expect(reduced.equals(Money.dollar(10)));
+  });
+
+  it('plus returns sum', () => {
+    const five = Money.dollar(5);
+    const result = five.plus(five);
+    const sum = result as Sum;
+    expect(five.equals(sum.augend)).toBe(true);
+    expect(five.equals(sum.addend)).toBe(true);
+  });
+
+  it('reduce sum', () => {
+    const sum = new Sum(Money.dollar(3), Money.dollar(4));
+    const bank = new Bank();
+    const result = bank.reduce(sum, 'USD');
+    expect(result.equals(Money.dollar(7))).toBe(true);
   });
 
   it('equality', () => {
