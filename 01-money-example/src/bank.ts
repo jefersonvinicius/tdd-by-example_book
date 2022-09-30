@@ -1,11 +1,18 @@
 import { Expression } from './expression';
 import { Money } from './money';
-import { Sum } from './sum';
 
 export class Bank {
-  reduce(expression: Expression, to: string) {
-    const sum = expression as Sum;
-    const amount = sum.augend.amount + sum.addend.amount;
-    return new Money(amount, to);
+  private rates = new Map<string, number>();
+
+  addRate(from: string, to: string, rate: number) {
+    this.rates.set(`${from}-${to}`, rate);
+  }
+
+  reduce(expression: Expression, to: string): Money {
+    return expression.reduce(this, to);
+  }
+
+  rate(from: string, to: string) {
+    return this.rates.get(`${from}-${to}`) ?? 1;
   }
 }

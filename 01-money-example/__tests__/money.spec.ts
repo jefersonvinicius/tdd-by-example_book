@@ -39,6 +39,19 @@ describe('Dollar suite test', () => {
     expect(result.equals(Money.dollar(7))).toBe(true);
   });
 
+  it('reduce money', () => {
+    const bank = new Bank();
+    const result = bank.reduce(Money.dollar(1), 'USD');
+    expect(result.equals(Money.dollar(1))).toBe(true);
+  });
+
+  it('reduce money different currency', () => {
+    const bank = new Bank();
+    bank.addRate('CHF', 'USD', 2);
+    const result = bank.reduce(Money.franc(2), 'USD');
+    expect(result.equals(Money.dollar(1))).toBe(true);
+  });
+
   it('equality', () => {
     expect(Money.dollar(5).equals(Money.dollar(5))).toBe(true);
     expect(Money.dollar(5).equals(Money.dollar(6))).toBe(false);
