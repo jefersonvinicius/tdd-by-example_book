@@ -13,6 +13,7 @@ export class Bank {
   }
 
   rate(from: string, to: string) {
-    return this.rates.get(`${from}-${to}`) ?? 1;
+    if (from === to) return 1;
+    return this.rates.get(`${from}-${to}`)!;
   }
 }
