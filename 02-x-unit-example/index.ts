@@ -23,8 +23,7 @@ class TestCase {
 
   teardown() {}
 
-  run() {
-    const result = new TestResult();
+  run(result: TestResult) {
     this.setUp();
     result.testStarted();
     try {
@@ -33,7 +32,6 @@ class TestCase {
       result.testFailed();
     }
     this.teardown();
-    return result;
   }
 }
 
@@ -44,13 +42,10 @@ class TestSuite {
     this.tests.push(testCase);
   }
 
-  run() {
-    const result = new TestResult();
+  run(result: TestResult) {
     this.tests.forEach((test) => {
-      console.log({ test });
-      test.run();
+      test.run(result);
     });
-    return result;
   }
 }
 
@@ -75,44 +70,52 @@ class WasRun extends TestCase {
 }
 
 class TestCaseTest extends TestCase {
-  override setUp(): void {}
+  result!: TestResult;
+
+  override setUp(): void {
+    this.result = new TestResult();
+  }
 
   testTemplateMethod() {
     const test = new WasRun('testMethod');
-    test.run();
-    assert.deepStrictEqual(test.log, 'setUp testMethod tearDown ');
+    test.run(this.result);
+    assert.strictEqual(test.log, 'setUp testMethod tearDown ');
   }
 
   testResult() {
     const test = new WasRun('testMethod');
-    const result = test.run();
-    assert.deepStrictEqual(result.summary(), '1 run, 0 failed');
+    test.run(this.result);
+    assert.strictEqual(this.result.summary(), '1 run, 0 failed');
   }
 
   testFailedResult() {
     const test = new WasRun('testBrokenMethod');
-    const result = test.run();
-    assert.deepStrictEqual(result.summary(), '1 run, 1 failed');
+    test.run(this.result);
+    assert.strictEqual(this.result.summary(), '1 run, 1 failed');
   }
 
   testFailedResultFormatting() {
-    const result = new TestResult();
-    result.testStarted();
-    result.testFailed();
-    assert.deepStrictEqual(result.summary(), '1 run, 1 failed');
+    this.result.testStarted();
+    this.result.testFailed();
+    assert.strictEqual(this.result.summary(), '1 run, 1 failed');
   }
 
   testSuite() {
     const suite = new TestSuite();
     suite.add(new WasRun('testMethod'));
     suite.add(new WasRun('testBrokenMethod'));
-    const result = suite.run();
-    assert.deepStrictEqual(result.summary(), '2 run, 1 failed');
+    suite.run(this.result);
+    assert.strictEqual(this.result.summary(), '2 run, 1 failed');
   }
 }
 
-new TestCaseTest('testTemplateMethod').run();
-new TestCaseTest('testResult').run();
-new TestCaseTest('testFailedResultFormatting').run();
-new TestCaseTest('testFailedResult').run();
-new TestCaseTest('testSuite').run();
+const suite = new TestSuite();
+
+suite.add(new TestCaseTest('testTemplateMethod'));
+suite.add(new TestCaseTest('testResult'));
+suite.add(new TestCaseTest('testFailedResultFormatting'));
+suite.add(new TestCaseTest('testFailedResult'));
+suite.add(new TestCaseTest('testSuite'));
+const resultGlobal = new TestResult();
+suite.run(resultGlobal);
+console.log(resultGlobal.summary());
